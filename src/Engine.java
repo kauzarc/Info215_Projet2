@@ -42,7 +42,7 @@ public class Engine {
 			tabColor[i] = new Color(255 - tabColor[i].getRed(), 255 - tabColor[i].getGreen(),
 					255 - tabColor[i].getBlue());
 
-		LoadSavePNG.save(tabColor, "./", "test.png", m_image.getWidth(), m_image.getHeight());
+		LoadSavePNG.save(tabColor, "./result/", "test.png", m_image.getWidth(), m_image.getHeight());
 	}
 
 	private void compress() throws IOException {
@@ -64,6 +64,6 @@ public class Engine {
 		}
 
 		String name = "compress_" + k + ".png";
-		LoadSavePNG.save(out, "./", name, m_image.getWidth(), m_image.getHeight());
+		LoadSavePNG.save(out, "./result/", name, m_image.getWidth(), m_image.getHeight());
 	}
 }

@@ -46,6 +46,8 @@ public class LoadSavePNG {
 			for (int j = 0; j < width; j++)
 				result.setRGB(j, i, image[i * width + j].getRGB());
 		}
+
+		System.out.println("saving: " + path + name);
 		ImageIO.write(result, "PNG", new File(path + name));
 	}
 }
