@@ -26,7 +26,7 @@ public class Engine {
 
 	public void run() throws IOException {
 		test();
-		findColor();
+		compress();
 	}
 
 	private void test() throws IOException {
@@ -45,7 +45,7 @@ public class Engine {
 		LoadSavePNG.save(tabColor, "./", "test.png", m_image.getWidth(), m_image.getHeight());
 	}
 
-	private void findColor() {
+	private void compress() throws IOException {
 		final int k = 6;
 		double centre[][] = new double[k][3];
 		for (int i = 0; i < k; i++) {
@@ -56,10 +56,14 @@ public class Engine {
 
 		int[] assignement = Kmeans.epoque(m_position, centre, 10);
 
-		String str = "";
+		Color[] out = new Color[m_position.length];
+
 		for (int i = 0; i < assignement.length; i++) {
-			str += assignement[i] + " ";
+			out[i] = new Color((int) (centre[assignement[i]][0] * 255.), (int) (centre[assignement[i]][1] * 255.),
+					(int) (centre[assignement[i]][2] * 255.));
 		}
-		System.out.println(str);
+
+		String name = "compress_" + k + ".png";
+		LoadSavePNG.save(out, "./", name, m_image.getWidth(), m_image.getHeight());
 	}
 }
