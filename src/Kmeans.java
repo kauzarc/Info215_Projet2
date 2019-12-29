@@ -9,7 +9,7 @@ public class Kmeans {
 		return result;
 	}
 
-	private static int[] Assigner(double[][] X, double[][] centres) {
+	private static int[] assigner(double[][] X, double[][] centres) {
 		int result[] = new int[X.length];
 
 		for (int i = 0; i < X.length; i++) {
@@ -36,7 +36,7 @@ public class Kmeans {
 		}
 	}
 
-	private static double Deplct(double X[][], double centre[][], int assignement[]) {
+	private static double deplct(double X[][], double centre[][], int assignement[]) {
 		double[][] ancienCentre = new double[centre.length][centre[0].length];
 		for (int i = 0; i < centre.length; i++) {
 			for (int j = 0; j < centre[i].length; j++) {
@@ -79,5 +79,17 @@ public class Kmeans {
 		}
 
 		return result;
+	}
+
+	public static int[] epoque(double X[][], double centre[][], int n) {
+		int assignement[] = null;
+		double score = Double.MAX_VALUE;
+
+		for (int i = 0; i < n && score != 0; i++) {
+			assignement = assigner(X, centre);
+			score = deplct(X, centre, assignement);
+		}
+
+		return assignement;
 	}
 }
