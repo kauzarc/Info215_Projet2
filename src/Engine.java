@@ -46,7 +46,7 @@ public class Engine {
 	}
 
 	private void compress() throws IOException {
-		final int k = 6;
+		final int k = 15;
 		double centre[][] = new double[k][3];
 		for (int i = 0; i < k; i++) {
 			centre[i][0] = m_random.nextDouble();
@@ -54,7 +54,7 @@ public class Engine {
 			centre[i][2] = m_random.nextDouble();
 		}
 
-		double[][] assignement = MixGauss.epoque(m_position, centre, 1);
+		double[][] assignement = MixGauss.epoque(m_position, centre, 100);
 
 		int index[] = new int[m_position.length];
 		for (int i = 0; i < m_position.length; i++) {
@@ -64,7 +64,7 @@ public class Engine {
 		Color[] out = new Color[m_position.length];
 
 		for (int i = 0; i < assignement.length; i++) {
-			System.out.println("" + centre[index[i]][0] + " " + centre[index[i]][1] + " " + centre[index[i]][2]);
+			// System.out.println("" + centre[index[i]][0] + " " + centre[index[i]][1] + " " + centre[index[i]][2]);
 			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
 					(int) (centre[index[i]][2] * 255.));
 		}

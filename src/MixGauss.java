@@ -54,7 +54,7 @@ public class MixGauss {
 
 				variance[k][i] = 0.;
 				for (int d = 0; d < X.length; d++) {
-					variance[k][i] += assignement[d][k] * (X[d][i] - centres[k][i]);
+					variance[k][i] += assignement[d][k] * Math.pow(X[d][i] - centres[k][i], 2);
 				}
 				variance[k][i] /= R;
 			}
