@@ -1,12 +1,12 @@
 
 public class MixGauss {
 
-	private static double[][] assigner(double[][] X, double[][] centres, double variance[][], double roh[]) {
-		double result[][] = new double[X.length][centres.length];
+	private static double[][] assigner(final double[][] X, final double[][] centres, final double variance[][], final double roh[]) {
+		final double result[][] = new double[X.length][centres.length];
 
 		for (int d = 0; d < X.length; d++) {
 
-			double produit[] = new double[centres.length];
+			final double produit[] = new double[centres.length];
 			for (int l = 0; l < centres.length; l++) {
 
 				produit[l] = roh[l];
@@ -34,8 +34,8 @@ public class MixGauss {
 		return result;
 	}
 
-	private static double deplct(double X[][], double centres[][], double assignement[][], double variance[][],
-			double roh[]) {
+	private static double deplct(final double X[][], final double centres[][], final double assignement[][], final double variance[][],
+			final double roh[]) {
 
 		for (int k = 0; k < centres.length; k++) {
 
@@ -65,19 +65,19 @@ public class MixGauss {
 		return 1.;
 	}
 
-	public static double[][] epoque(double X[][], double centres[][], int n) {
+	public static double[][] epoque(final double X[][], final double centres[][], final int n) {
 		double assignement[][] = null;
 
 		double score = Double.MAX_VALUE;
 
-		double[][] variance = new double[centres.length][centres[0].length];
+		final double[][] variance = new double[centres.length][centres[0].length];
 		for (int i = 0; i < variance.length; i++) {
 			for (int j = 0; j < variance[i].length; j++) {
 				variance[i][j] = 0.2;
 			}
 		}
 
-		double roh[] = new double[centres.length];
+		final double roh[] = new double[centres.length];
 		for (int k = 0; k < centres.length; k++) {
 			roh[k] = 1. / (double) centres.length;
 		}

@@ -1,6 +1,6 @@
 public class Kmeans {
 
-	private static double distance2(double x[], double centre[]) {
+	private static double distance2(final double x[], final double centre[]) {
 		double result = 0;
 		for (int i = 0; i < x.length; i++) {
 			result += Math.pow(x[i] - centre[i], 2);
@@ -9,8 +9,8 @@ public class Kmeans {
 		return result;
 	}
 
-	private static int[] assigner(double[][] X, double[][] centres) {
-		int result[] = new int[X.length];
+	private static int[] assigner(final double[][] X, final double[][] centres) {
+		final int result[] = new int[X.length];
 
 		for (int i = 0; i < X.length; i++) {
 
@@ -18,7 +18,7 @@ public class Kmeans {
 			int minId = -1;
 
 			for (int j = 0; j < centres.length; j++) {
-				double buff = distance2(X[i], centres[j]);
+				final double buff = distance2(X[i], centres[j]);
 				if (buff < min) {
 					min = buff;
 					minId = j;
@@ -30,21 +30,21 @@ public class Kmeans {
 		return result;
 	}
 
-	private static void somme(double a[], double b[]) {
+	private static void somme(final double a[], final double b[]) {
 		for (int i = 0; i < a.length; i++) {
 			a[i] += b[i];
 		}
 	}
 
-	private static double deplct(double X[][], double centre[][], int assignement[]) {
-		double[][] ancienCentre = new double[centre.length][centre[0].length];
+	private static double deplct(final double X[][], final double centre[][], final int assignement[]) {
+		final double[][] ancienCentre = new double[centre.length][centre[0].length];
 		for (int i = 0; i < centre.length; i++) {
 			for (int j = 0; j < centre[i].length; j++) {
 				ancienCentre[i][j] = centre[i][j];
 			}
 		}
 
-		int count[] = new int[centre.length];
+		final int count[] = new int[centre.length];
 		for (int i = 0; i < count.length; i++) {
 			count[i] = 0;
 		}
@@ -81,7 +81,7 @@ public class Kmeans {
 		return result;
 	}
 
-	public static int[] epoque(double X[][], double centre[][], int n) {
+	public static int[] epoque(final double X[][], final double centre[][], final int n) {
 		int assignement[] = null;
 		double score = Double.MAX_VALUE;
 

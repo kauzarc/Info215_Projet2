@@ -2,8 +2,8 @@ import java.io.IOException;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
-		Engine engine = new Engine();
+	public static void main(final String[] args) throws IOException {
+		final Engine engine = new Engine();
 		engine.run();
 	}
 }
