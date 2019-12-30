@@ -48,7 +48,7 @@ public class MixGauss {
 
 				centres[k][i] = 0.;
 				for (int d = 0; d < X.length; d++) {
-					centres[k][i] += assignement[k][i] * X[d][i];
+					centres[k][i] += assignement[d][k] * X[d][i];
 				}
 				centres[k][i] /= R;
 
@@ -73,7 +73,7 @@ public class MixGauss {
 		double[][] variance = new double[centres.length][centres[0].length];
 		for (int i = 0; i < variance.length; i++) {
 			for (int j = 0; j < variance[i].length; j++) {
-				variance[i][j] = 0.5;
+				variance[i][j] = 0.2;
 			}
 		}
 

@@ -54,13 +54,19 @@ public class Engine {
 			centre[i][2] = m_random.nextDouble();
 		}
 
-		int[] assignement = Kmeans.epoque(m_position, centre, 10);
+		double[][] assignement = MixGauss.epoque(m_position, centre, 1);
+
+		int index[] = new int[m_position.length];
+		for (int i = 0; i < m_position.length; i++) {
+			index[i] = indexOfMax(assignement[i]);
+		}
 
 		Color[] out = new Color[m_position.length];
 
 		for (int i = 0; i < assignement.length; i++) {
-			out[i] = new Color((int) (centre[assignement[i]][0] * 255.), (int) (centre[assignement[i]][1] * 255.),
-					(int) (centre[assignement[i]][2] * 255.));
+			System.out.println("" + centre[index[i]][0] + " " + centre[index[i]][1] + " " + centre[index[i]][2]);
+			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
+					(int) (centre[index[i]][2] * 255.));
 		}
 
 		String name = "compress_" + k + ".png";
@@ -70,7 +76,7 @@ public class Engine {
 	private int indexOfMax(double tab[]) {
 		int result = 0;
 		for (int i = 1; i < tab.length; i++) {
-			if (tab[i] < tab[result]) {
+			if (tab[i] > tab[result]) {
 				result = i;
 			}
 		}
