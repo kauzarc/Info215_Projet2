@@ -66,4 +66,14 @@ public class Engine {
 		String name = "compress_" + k + ".png";
 		LoadSavePNG.save(out, "./result/", name, m_image.getWidth(), m_image.getHeight());
 	}
+
+	private int indexOfMax(double tab[]) {
+		int result = 0;
+		for (int i = 1; i < tab.length; i++) {
+			if (tab[i] < tab[result]) {
+				result = i;
+			}
+		}
+		return result;
+	}
 }

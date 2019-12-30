@@ -34,20 +34,57 @@ public class MixGauss {
 		return result;
 	}
 
-	private static double deplct(double X[][], double centres[][], double assignement[][]) {
-		return 0;
+	private static double deplct(double X[][], double centres[][], double assignement[][], double variance[][],
+			double roh[]) {
+
+		for (int k = 0; k < centres.length; k++) {
+
+			double R = 0.;
+			for (int d = 0; d < X.length; d++) {
+				R += assignement[d][k];
+			}
+
+			for (int i = 0; i < centres[k].length; i++) {
+
+				centres[k][i] = 0.;
+				for (int d = 0; d < X.length; d++) {
+					centres[k][i] += assignement[k][i] * X[d][i];
+				}
+				centres[k][i] /= R;
+
+				variance[k][i] = 0.;
+				for (int d = 0; d < X.length; d++) {
+					variance[k][i] += assignement[d][k] * (X[d][i] - centres[k][i]);
+				}
+				variance[k][i] /= R;
+			}
+
+			roh[k] = R / X.length;
+		}
+
+		return 1.;
 	}
 
 	public static double[][] epoque(double X[][], double centres[][], int n) {
 		double assignement[][] = null;
 
 		double score = Double.MAX_VALUE;
-		double[][] variance = new double[centres.length][X.length];
+
+		double[][] variance = new double[centres.length][centres[0].length];
+		for (int i = 0; i < variance.length; i++) {
+			for (int j = 0; j < variance[i].length; j++) {
+				variance[i][j] = 0.5;
+			}
+		}
+
 		double roh[] = new double[centres.length];
+		for (int k = 0; k < centres.length; k++) {
+			roh[k] = 1. / (double) centres.length;
+		}
 
 		for (int i = 0; i < n && score != 0; i++) {
 			assignement = assigner(X, centres, variance, roh);
-			score = deplct(X, centres, assignement);
+			score = deplct(X, centres, assignement, variance, roh);
 		}
 
 		return assignement;
