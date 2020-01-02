@@ -1,7 +1,8 @@
 
 public class MixGauss {
 
-	private static double[][] assigner(final double[][] X, final double[][] centres, final double variance[][], final double roh[]) {
+	private static double[][] assigner(final double[][] X, final double[][] centres, final double variance[][],
+			final double roh[]) {
 		final double result[][] = new double[X.length][centres.length];
 
 		for (int d = 0; d < X.length; d++) {
@@ -34,8 +35,8 @@ public class MixGauss {
 		return result;
 	}
 
-	private static double deplct(final double X[][], final double centres[][], final double assignement[][], final double variance[][],
-			final double roh[]) {
+	private static double deplct(final double X[][], final double centres[][], final double assignement[][],
+			final double variance[][], final double roh[]) {
 
 		for (int k = 0; k < centres.length; k++) {
 
