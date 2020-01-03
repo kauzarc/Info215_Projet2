@@ -1,6 +1,15 @@
 
 public class MixGauss {
 
+	private static double distance2(final double x[], final double centre[]) {
+		double result = 0;
+		for (int i = 0; i < x.length; i++) {
+			result += Math.pow(x[i] - centre[i], 2);
+		}
+		result = Math.sqrt(result);
+		return result;
+	}
+
 	private static double[][] assigner(final double[][] X, final double[][] centres, final double variance[][],
 			final double roh[]) {
 		final double result[][] = new double[X.length][centres.length];
@@ -38,6 +47,13 @@ public class MixGauss {
 	private static double deplct(final double X[][], final double centres[][], final double assignement[][],
 			final double variance[][], final double roh[]) {
 
+		final double[][] ancienCentres = new double[centres.length][centres[0].length];
+		for (int i = 0; i < centres.length; i++) {
+			for (int j = 0; j < centres[i].length; j++) {
+				ancienCentres[i][j] = centres[i][j];
+			}
+		}
+
 		for (int k = 0; k < centres.length; k++) {
 
 			double R = 0.;
@@ -63,7 +79,12 @@ public class MixGauss {
 			roh[k] = R / X.length;
 		}
 
-		return 1.;
+		double result = 0;
+		for (int i = 0; i < centres.length; i++) {
+			result += distance2(centres[i], ancienCentres[i]);
+		}
+
+		return result;
 	}
 
 	public static double[][] epoque(final double X[][], final double centres[][], final int n) {

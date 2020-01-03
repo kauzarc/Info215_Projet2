@@ -26,7 +26,11 @@ public class Engine {
 
 	public void run() throws IOException {
 		test();
-		compress();
+
+		compress(5);
+		compress(10);
+		compress(15);
+		compress(20);
 	}
 
 	private void test() throws IOException {
@@ -45,8 +49,7 @@ public class Engine {
 		LoadSavePNG.save(tabColor, "./result/", "test.png", m_image.getWidth(), m_image.getHeight());
 	}
 
-	private void compress() throws IOException {
-		final int k = 15;
+	private void compress(final int k) throws IOException {
 		final double centre[][] = new double[k][3];
 		for (int i = 0; i < k; i++) {
 			centre[i][0] = m_random.nextDouble();
@@ -70,8 +73,26 @@ public class Engine {
 					(int) (centre[index[i]][2] * 255.));
 		}
 
-		final String name = "compress_" + k + ".png";
-		LoadSavePNG.save(out, "./result/", name, m_image.getWidth(), m_image.getHeight());
+		LoadSavePNG.save(out, "./result/", "compress_" + k + ".png", m_image.getWidth(), m_image.getHeight());
+
+		int count[] = new int[centre.length];
+		for (int i = 0; i < count.length; i++) {
+			count[i] = 0;
+		}
+		for (int i = 0; i < index.length; i++) {
+			count[index[i]]++;
+		}
+
+		SaveFile result = new SaveFile("./result/", "compress_" + k + ".csv");
+		result.saveAssignement(centre, count);
+		result.close();
+
+		final Color[] colors = new Color[centre.length];
+		for (int i = 0; i < centre.length; i++) {
+			colors[i] = new Color((int) (centre[i][0] * 255.), (int) (centre[i][1] * 255.),
+					(int) (centre[i][2] * 255.));
+		}
+		LoadSavePNG.save(colors, "./result/", "compress_colors_" + k + ".png", centre.length, 1);
 	}
 
 	private int indexOfMax(final double tab[]) {
