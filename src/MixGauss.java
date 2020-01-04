@@ -87,6 +87,35 @@ public class MixGauss {
 		return result;
 	}
 
+	public static double score(final double[][] X, final double[][] centres, final double variance[][],
+			final double roh[]) {
+		double result = 0.;
+
+		for (int d = 0; d < X.length; d++) {
+
+			double somme = 0.;
+			for (int k = 0; k < centres.length; k++) {
+
+				double produit = roh[k];
+				for (int i = 0; i < X[d].length; i++) {
+					double num = Math.pow(X[d][i] - centres[k][i], 2) / (-2. * variance[k][i]);
+					num = Math.exp(num);
+
+					double den = 2 * Math.PI * variance[k][i];
+					den = Math.sqrt(den);
+
+					produit *= num / den;
+				}
+
+				somme += produit;
+			}
+
+			result += Math.log(somme);
+		}
+
+		return result / (double) X.length;
+	}
+
 	public static double[][] epoque(final double X[][], final double centres[][], final int n) {
 		double assignement[][] = null;
 
