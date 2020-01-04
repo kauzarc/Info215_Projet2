@@ -26,6 +26,16 @@ public class SaveFile {
 		}
 	}
 
+	public void saveMatrix(final double tab[][]) {
+		for (double line[] : tab) {
+			String str = "";
+			for (double element : line) {
+				str += element + " ";
+			}
+			m_writer.println(str);
+		}
+	}
+
 	void close() {
 		m_writer.close();
 	}

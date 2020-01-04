@@ -29,12 +29,31 @@ public class Engine {
 	public void run() throws IOException {
 		// test();
 
-		kScoreImage();
+		// kScoreImage();
+
+		histo1D();
 
 		// compress(5);
 		// compress(10);
 		// compress(15);
 		// compress(20);
+	}
+
+	private static double[][] histogramme(final double xmin, final double xmax, final int NbCases, final double[] ech) {
+		final double[][] Histo = new double[2][NbCases];
+		final double size = (xmax - xmin) / (double) NbCases;
+
+		for (int i = 0; i < NbCases; i++) {
+			Histo[0][i] = xmin + (size * (float) i);
+		}
+
+		for (int i = 0; i < ech.length; i++) {
+			final int index = (int) Math.floor((ech[i] - xmin) / size);
+			if (index >= 0 && index < NbCases) {
+				Histo[1][index]++;
+			}
+		}
+		return Histo;
 	}
 
 	private void test() throws IOException {
@@ -58,7 +77,7 @@ public class Engine {
 		final int mink = 2;
 		final int maxk = 20;
 		final int nit = 10;
-		double score[] = new double[maxk - mink + 1];
+		final double score[] = new double[maxk - mink + 1];
 
 		for (int k = mink; k <= maxk; k++) {
 			System.out.println("-k=" + k);
@@ -90,7 +109,7 @@ public class Engine {
 
 				MixGauss.epoque(m_position, centre, variance, roh, 100);
 
-				double s = MixGauss.score(m_position, centre, variance, roh);
+				final double s = MixGauss.score(m_position, centre, variance, roh);
 				System.out.println(s);
 				if (s > score[k - mink]) {
 					score[k - mink] = s;
@@ -99,9 +118,63 @@ public class Engine {
 		}
 
 		try {
-			SaveFile file = new SaveFile("./result/", "kScoreImage.txt");
+			final SaveFile file = new SaveFile("./result/", "kScoreImage.txt");
 			file.saveDouble(score);
 			file.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void histo1D() {
+		final int n = 50000;
+		double position[][] = new double[n][1];
+		for (int i = 0; 2 * i < n; i++) {
+			position[2 * i][0] = m_random.nextGaussian() * 1.5 + 3;
+			position[2 * i + 1][0] = m_random.nextGaussian() * 0.2 - 2;
+		}
+
+		final double centre[][] = new double[2][1];
+		centre[0][0] = -1.;
+		centre[1][0] = 1.;
+		Kmeans.epoque(position, centre, 100);
+
+		final double[][] variance = new double[centre.length][centre[0].length];
+		for (int i = 0; i < variance.length; i++) {
+			for (int j = 0; j < variance[i].length; j++) {
+				variance[i][j] = m_random.nextDouble() / 2.;
+			}
+		}
+
+		final double roh[] = new double[centre.length];
+		for (int i = 0; i < centre.length; i++) {
+			roh[i] = 1. / (double) centre.length;
+		}
+
+		MixGauss.epoque(position, centre, variance, roh, 100);
+
+		double tab[] = new double[position.length];
+		for (int i = 0; i < position.length; i++) {
+			tab[i] = position[i][0];
+		}
+		double histo[][] = histogramme(-5., 10., 100, tab);
+		double histoNorm[][] = new double[histo[0].length][2];
+		for (int i = 0; i < histo[0].length; i++) {
+			histoNorm[i][0] = histo[0][i];
+			histoNorm[i][1] = histo[1][i] / (double) n;
+		}
+
+		double gauss[][] = { { centre[0][0], variance[0][0] }, { centre[1][0], variance[1][0] } };
+
+		try {
+			SaveFile f1 = new SaveFile("./result/", "histo1D_histo.txt");
+			SaveFile f2 = new SaveFile("./result/", "histo1D_gauss");
+
+			f1.saveMatrix(histoNorm);
+			f2.saveMatrix(gauss);
+
+			f1.close();
+			f2.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -145,7 +218,7 @@ public class Engine {
 
 		LoadSavePNG.save(out, "./result/", "compress_" + k + ".png", m_image.getWidth(), m_image.getHeight());
 
-		int count[] = new int[centre.length];
+		final int count[] = new int[centre.length];
 		for (int i = 0; i < count.length; i++) {
 			count[i] = 0;
 		}
@@ -153,7 +226,7 @@ public class Engine {
 			count[index[i]]++;
 		}
 
-		SaveFile result = new SaveFile("./result/", "compress_" + k + ".csv");
+		final SaveFile result = new SaveFile("./result/", "compress_" + k + ".csv");
 		result.saveAssignement(centre, count);
 		result.close();
 
