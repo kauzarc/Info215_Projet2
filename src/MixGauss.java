@@ -116,22 +116,11 @@ public class MixGauss {
 		return result / (double) X.length;
 	}
 
-	public static double[][] epoque(final double X[][], final double centres[][], final int n) {
+	public static double[][] epoque(final double[][] X, final double[][] centres, final double variance[][],
+			final double roh[], final int n) {
 		double assignement[][] = null;
 
 		double score = Double.MAX_VALUE;
-
-		final double[][] variance = new double[centres.length][centres[0].length];
-		for (int i = 0; i < variance.length; i++) {
-			for (int j = 0; j < variance[i].length; j++) {
-				variance[i][j] = 0.2;
-			}
-		}
-
-		final double roh[] = new double[centres.length];
-		for (int k = 0; k < centres.length; k++) {
-			roh[k] = 1. / (double) centres.length;
-		}
 
 		for (int i = 0; i < n && score != 0; i++) {
 			assignement = assigner(X, centres, variance, roh);

@@ -57,7 +57,19 @@ public class Engine {
 			centre[i][2] = m_random.nextDouble();
 		}
 
-		final double[][] assignement = MixGauss.epoque(m_position, centre, 100);
+		final double[][] variance = new double[centre.length][centre[0].length];
+		for (int i = 0; i < variance.length; i++) {
+			for (int j = 0; j < variance[i].length; j++) {
+				variance[i][j] = 0.2;
+			}
+		}
+
+		final double roh[] = new double[centre.length];
+		for (int i = 0; i < centre.length; i++) {
+			roh[i] = 1. / (double) centre.length;
+		}
+
+		final double[][] assignement = MixGauss.epoque(m_position, centre, variance, roh, 100);
 
 		final int index[] = new int[m_position.length];
 		for (int i = 0; i < m_position.length; i++) {
@@ -67,8 +79,6 @@ public class Engine {
 		final Color[] out = new Color[m_position.length];
 
 		for (int i = 0; i < assignement.length; i++) {
-			// System.out.println("" + centre[index[i]][0] + " " + centre[index[i]][1] + " "
-			// + centre[index[i]][2]);
 			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
 					(int) (centre[index[i]][2] * 255.));
 		}
