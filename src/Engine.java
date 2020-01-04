@@ -1,5 +1,7 @@
 import java.awt.Color;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 public class Engine {
@@ -25,12 +27,14 @@ public class Engine {
 	}
 
 	public void run() throws IOException {
-		test();
+		// test();
 
-		compress(5);
-		compress(10);
-		compress(15);
-		compress(20);
+		kScoreImage();
+
+		// compress(5);
+		// compress(10);
+		// compress(15);
+		// compress(20);
 	}
 
 	private void test() throws IOException {
@@ -49,6 +53,60 @@ public class Engine {
 		LoadSavePNG.save(tabColor, "./result/", "test.png", m_image.getWidth(), m_image.getHeight());
 	}
 
+	private void kScoreImage() {
+		System.out.println("kScoreImage:");
+		final int mink = 2;
+		final int maxk = 20;
+		final int nit = 10;
+		double score[] = new double[maxk - mink + 1];
+
+		for (int k = mink; k <= maxk; k++) {
+			System.out.println("-k=" + k);
+			score[k - mink] = Double.MIN_VALUE;
+			;
+
+			for (int it = 0; it < nit; it++) {
+
+				final double centre[][] = new double[k][3];
+				for (int i = 0; i < k; i++) {
+					centre[i][0] = m_random.nextDouble();
+					centre[i][1] = m_random.nextDouble();
+					centre[i][2] = m_random.nextDouble();
+				}
+
+				Kmeans.epoque(m_position, centre, 100);
+
+				final double[][] variance = new double[centre.length][centre[0].length];
+				for (int i = 0; i < variance.length; i++) {
+					for (int j = 0; j < variance[i].length; j++) {
+						variance[i][j] = m_random.nextDouble() / 2.;
+					}
+				}
+
+				final double roh[] = new double[centre.length];
+				for (int i = 0; i < centre.length; i++) {
+					roh[i] = 1. / (double) centre.length;
+				}
+
+				MixGauss.epoque(m_position, centre, variance, roh, 100);
+
+				double s = MixGauss.score(m_position, centre, variance, roh);
+				System.out.println(s);
+				if (s > score[k - mink]) {
+					score[k - mink] = s;
+				}
+			}
+		}
+
+		try {
+			SaveFile file = new SaveFile("./result/", "kScoreImage.txt");
+			file.saveDouble(score);
+			file.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void compress(final int k) throws IOException {
 		final double centre[][] = new double[k][3];
 		for (int i = 0; i < k; i++) {
@@ -57,10 +115,12 @@ public class Engine {
 			centre[i][2] = m_random.nextDouble();
 		}
 
+		Kmeans.epoque(m_position, centre, 100);
+
 		final double[][] variance = new double[centre.length][centre[0].length];
 		for (int i = 0; i < variance.length; i++) {
 			for (int j = 0; j < variance[i].length; j++) {
-				variance[i][j] = 0.2;
+				variance[i][j] = m_random.nextDouble() / 2.;
 			}
 		}
 

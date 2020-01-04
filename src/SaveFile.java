@@ -5,11 +5,11 @@ import java.io.UnsupportedEncodingException;
 public class SaveFile {
 	private final PrintWriter m_writer;
 
-	SaveFile(final String path, final String name) throws FileNotFoundException, UnsupportedEncodingException {
+	public SaveFile(final String path, final String name) throws FileNotFoundException, UnsupportedEncodingException {
 		m_writer = new PrintWriter(path + name, "UTF-8");
 	}
 
-	void saveAssignement(final double centres[][], final int assignement[]) {
+	public void saveAssignement(final double centres[][], final int assignement[]) {
 		for (int k = 0; k < centres.length; k++) {
 			String str = "";
 			for (int i = 0; i < centres[k].length; i++) {
@@ -17,6 +17,12 @@ public class SaveFile {
 			}
 			str += assignement[k];
 			m_writer.println(str);
+		}
+	}
+
+	public void saveDouble(final double tab[]) {
+		for (double element : tab) {
+			m_writer.println(element);
 		}
 	}
 
