@@ -59,6 +59,8 @@ public class Engine {
 	public void run() throws IOException {
 		test();
 
+		segmentation();
+
 		kScoreImage();
 
 		kScoreFile();
@@ -118,6 +120,87 @@ public class Engine {
 					255 - tabColor[i].getBlue());
 
 		LoadSavePNG.save(tabColor, "./result/", "test.png", m_image.getWidth(), m_image.getHeight());
+	}
+
+	/**
+	 * algorithme de segmentation
+	 */
+	private void segmentation() {
+		System.out.println("Segmentation:");
+		final double centre[][] = new double[7][3];
+		// jaune
+		centre[0][0] = 0.89;
+		centre[0][1] = 0.87;
+		centre[0][2] = 0.09;
+
+		// bleu
+		centre[1][0] = 0.06;
+		centre[1][1] = 0.41;
+		centre[1][2] = 0.70;
+
+		// orange
+		centre[2][0] = 0.92;
+		centre[2][1] = 0.36;
+		centre[2][2] = 0.07;
+
+		// vert
+		centre[3][0] = 0.25;
+		centre[3][1] = 0.81;
+		centre[3][2] = 0.19;
+
+		// rouge
+		centre[4][0] = 0.62;
+		centre[4][1] = 0.15;
+		centre[4][2] = 0.15;
+
+		// marron noir
+		centre[5][0] = 0.20;
+		centre[5][1] = 0.16;
+		centre[5][2] = 0.11;
+
+		// marron clair
+		centre[6][0] = 0.90;
+		centre[6][1] = 0.83;
+		centre[6][2] = 0.64;
+
+		// Kmeans.epoque(m_positionIm, centre, 100);
+
+		// initialisation des variances
+		final double[][] variance = new double[centre.length][centre[0].length];
+		for (int i = 0; i < variance.length; i++) {
+			for (int j = 0; j < variance[i].length; j++) {
+				variance[i][j] = m_random.nextDouble() / 2.;
+			}
+		}
+
+		// initialisation de roh
+		final double roh[] = new double[centre.length];
+		for (int i = 0; i < centre.length; i++) {
+			roh[i] = 1. / (double) centre.length;
+		}
+
+		// 100 epoque max
+		final double[][] assignement = MixGauss.epoque(m_positionIm, centre, variance, roh, 100);
+
+		// creation d'un tableau contennant le centre auquels est associée chaque pixel
+		final int index[] = new int[m_positionIm.length];
+		for (int i = 0; i < m_positionIm.length; i++) {
+			index[i] = indexOfMax(assignement[i]);
+		}
+
+		// nouvelle image ou chaque pixel est remplace par la couleur du centre
+		final Color[] out = new Color[m_positionIm.length];
+		for (int i = 0; i < assignement.length; i++) {
+			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
+					(int) (centre[index[i]][2] * 255.));
+		}
+
+		// sauvegarde de l'image
+		try {
+			LoadSavePNG.save(out, "./result/", "segmentation.png", m_image.getWidth(), m_image.getHeight());
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
