@@ -31,7 +31,7 @@ public class Engine {
 
 		// kScoreImage();
 
-		histo1D();
+		histo1D(1000);
 
 		// compress(5);
 		// compress(10);
@@ -44,7 +44,7 @@ public class Engine {
 		final double size = (xmax - xmin) / (double) NbCases;
 
 		for (int i = 0; i < NbCases; i++) {
-			Histo[0][i] = xmin + (size * (float) i);
+			Histo[0][i] = xmin + (size * (double) i);
 		}
 
 		for (int i = 0; i < ech.length; i++) {
@@ -126,8 +126,7 @@ public class Engine {
 		}
 	}
 
-	private void histo1D() {
-		final int n = 50000;
+	private void histo1D(final int n) {
 		double position[][] = new double[n][1];
 		for (int i = 0; 2 * i < n; i++) {
 			position[2 * i][0] = m_random.nextGaussian() * 1.5 + 3;
@@ -164,7 +163,7 @@ public class Engine {
 			histoNorm[i][1] = histo[1][i] / (double) n;
 		}
 
-		double gauss[][] = { { centre[0][0], variance[0][0] }, { centre[1][0], variance[1][0] } };
+		double gauss[][] = { { centre[0][0], variance[0][0], roh[0] }, { centre[1][0], variance[1][0], roh[1] } };
 
 		try {
 			SaveFile f1 = new SaveFile("./result/", "histo1D_histo.txt");
