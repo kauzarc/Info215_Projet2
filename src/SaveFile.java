@@ -2,6 +2,9 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * petite class pour abstraire l'ecriture des fichiers
+ */
 public class SaveFile {
 	private final PrintWriter m_writer;
 

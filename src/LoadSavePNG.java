@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * petite class pour abstraire la lecture et la sauvegarde des images
+ */
 public class LoadSavePNG {
 
 	private final String m_path;

@@ -4,6 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * petite class pour abstraire la lecture des fichiers
+ */
 public class File {
 	BufferedReader m_fileReader;
 

@@ -1,5 +1,8 @@
 public class Kmeans {
 
+	/**
+	 * distance euclidienne
+	 */
 	private static double distance2(final double x[], final double centre[]) {
 		double result = 0;
 		for (int i = 0; i < x.length; i++) {
@@ -9,6 +12,9 @@ public class Kmeans {
 		return result;
 	}
 
+	/**
+	 * algorithme d'assignement
+	 */
 	private static int[] assigner(final double[][] X, final double[][] centres) {
 		final int result[] = new int[X.length];
 
@@ -30,12 +36,26 @@ public class Kmeans {
 		return result;
 	}
 
+	/**
+	 * somme de deux vecteurs
+	 * 
+	 * @param a ce parametre est modifie
+	 * @param b
+	 */
 	private static void somme(final double a[], final double b[]) {
 		for (int i = 0; i < a.length; i++) {
 			a[i] += b[i];
 		}
 	}
 
+	/**
+	 * Deplace les centres en fonction de l'assignement, fait en tp
+	 * 
+	 * @param X
+	 * @param centre
+	 * @param assignement
+	 * @return la distance entre la position des centres avant et apres
+	 */
 	private static double deplct(final double X[][], final double centre[][], final int assignement[]) {
 		final double[][] ancienCentre = new double[centre.length][centre[0].length];
 		for (int i = 0; i < centre.length; i++) {
@@ -81,6 +101,14 @@ public class Kmeans {
 		return result;
 	}
 
+	/**
+	 * fait n epoque
+	 * 
+	 * @param X      liste de points
+	 * @param centre liste de points
+	 * @param n
+	 * @return la liste des assignements des points
+	 */
 	public static int[] epoque(final double X[][], final double centre[][], final int n) {
 		int assignement[] = null;
 		double score = Double.MAX_VALUE;

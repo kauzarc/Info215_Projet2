@@ -6,15 +6,27 @@ import java.util.Random;
 
 public class Engine {
 
+	/*
+	 * mms.png
+	 */
 	private final LoadSavePNG m_image;
 	private final double m_positionIm[][];
 
+	/*
+	 * gmm_data.d
+	 */
 	private final File m_file;
 	private final double m_positionFile[][];
 
 	private final Random m_random;
 
+	/**
+	 * Constructeur charge mms.png et gmm_data.d
+	 * 
+	 * @throws IOException
+	 */
 	public Engine() throws IOException {
+		System.out.println("Initialisation");
 		m_image = new LoadSavePNG("./", "mms.png");
 		m_file = new File("./", "gmm_data.d");
 
@@ -39,21 +51,35 @@ public class Engine {
 		m_random = new Random(123456789);
 	}
 
+	/**
+	 * Execute les fonctions pour repondre au questions
+	 * 
+	 * @throws IOException
+	 */
 	public void run() throws IOException {
-		// test();
+		test();
 
-		// kScoreImage();
-
-		// histo1D(1000);
+		kScoreImage();
 
 		kScoreFile();
 
-		// compress(5);
-		// compress(10);
-		// compress(15);
-		// compress(20);
+		histo1D(1000);
+
+		compress(5);
+		compress(10);
+		compress(15);
+		compress(20);
 	}
 
+	/**
+	 * Cree un histogramme a patrir d'un tableau de valeur
+	 * 
+	 * @param xmin
+	 * @param xmax
+	 * @param NbCases
+	 * @param ech     le tableau de double
+	 * @return un tableau 2D contenant les x associé a un nombre d'element
+	 */
 	private static double[][] histogramme(final double xmin, final double xmax, final int NbCases, final double[] ech) {
 		final double[][] Histo = new double[2][NbCases];
 		final double size = (xmax - xmin) / (double) NbCases;
@@ -71,7 +97,13 @@ public class Engine {
 		return Histo;
 	}
 
+	/**
+	 * Fonction test donne dans les instructions du projet
+	 * 
+	 * @throws IOException
+	 */
 	private void test() throws IOException {
+		System.out.println("test:");
 		final Color c = m_image.getPixel(0, 0);
 		System.out.println("RGB = " + c.getRed() + " " + c.getGreen() + " " + c.getBlue());
 
@@ -88,28 +120,38 @@ public class Engine {
 		LoadSavePNG.save(tabColor, "./result/", "test.png", m_image.getWidth(), m_image.getHeight());
 	}
 
+	/**
+	 * cree un fichier contenant le score apres convergence pour differente valeurs
+	 * de k pour les pixel de l'image
+	 */
 	private void kScoreImage() {
 		System.out.println("kScoreImage:");
 		final int mink = 2;
-		final int maxk = 20;
+		final int maxk = 10;
+		// nombre d'essai a chaque centre
 		final int nit = 10;
-		final double score[] = new double[maxk - mink + 1];
+		// pour stocker k associer au score
+		final double score[][] = new double[maxk - mink + 1][2];
 
 		for (int k = mink; k <= maxk; k++) {
 			System.out.println("-k=" + k);
-			score[k - mink] = Double.MIN_VALUE;
+			// initialise le score pour un nombre de scores donne
+			score[k - mink][0] = k;
+			score[k - mink][1] = -Double.MAX_VALUE;
 
+			// nit condition initial
 			for (int it = 0; it < nit; it++) {
 
+				// initialise les centres
 				final double centre[][] = new double[k][3];
 				for (int i = 0; i < k; i++) {
 					centre[i][0] = m_random.nextDouble();
 					centre[i][1] = m_random.nextDouble();
 					centre[i][2] = m_random.nextDouble();
 				}
-
 				Kmeans.epoque(m_positionIm, centre, 100);
 
+				// initialise les variances
 				final double[][] variance = new double[centre.length][centre[0].length];
 				for (int i = 0; i < variance.length; i++) {
 					for (int j = 0; j < variance[i].length; j++) {
@@ -117,40 +159,48 @@ public class Engine {
 					}
 				}
 
+				// initialise les valeurs de roh
 				final double roh[] = new double[centre.length];
 				for (int i = 0; i < centre.length; i++) {
 					roh[i] = 1. / (double) centre.length;
 				}
 
+				// 100 epoque maximum
 				MixGauss.epoque(m_positionIm, centre, variance, roh, 100);
 
+				// garde le meilleur score pour chaque valeur de k
 				final double s = MixGauss.score(m_positionIm, centre, variance, roh);
-				System.out.println(s);
-				if (s > score[k - mink]) {
-					score[k - mink] = s;
+				if (s > score[k - mink][1]) {
+					score[k - mink][1] = s;
 				}
 			}
 		}
 
+		// sauvegarde le resultat
 		try {
 			final SaveFile file = new SaveFile("./result/", "kScoreImage.txt");
-			file.saveDouble(score);
+			file.saveMatrix(score);
 			file.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * cree un fichier contenant le score apres convergence pour differente valeurs
+	 * de k pour les points de gmm_data.d ->voir les commentaires de "kScoreImage()"
+	 */
 	private void kScoreFile() {
 		System.out.println("kScoreFile:");
 		final int mink = 2;
-		final int maxk = 20;
+		final int maxk = 10;
 		final int nit = 10;
-		final double score[] = new double[maxk - mink + 1];
+		final double score[][] = new double[maxk - mink + 1][2];
 
 		for (int k = mink; k <= maxk; k++) {
 			System.out.println("-k=" + k);
-			score[k - mink] = Double.MIN_VALUE;
+			score[k - mink][0] = k;
+			score[k - mink][1] = -Double.MAX_VALUE;
 
 			for (int it = 0; it < nit; it++) {
 
@@ -177,34 +227,44 @@ public class Engine {
 				MixGauss.epoque(m_positionFile, centre, variance, roh, 100);
 
 				final double s = MixGauss.score(m_positionFile, centre, variance, roh);
-				System.out.println(s);
-				if (s > score[k - mink]) {
-					score[k - mink] = s;
+				if (s > score[k - mink][1]) {
+					score[k - mink][1] = s;
 				}
 			}
 		}
 
 		try {
 			final SaveFile file = new SaveFile("./result/", "kScoreFile.txt");
-			file.saveDouble(score);
+			file.saveMatrix(score);
 			file.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Test l'algorithme avec n points repartis selon une mixture de loi normale en
+	 * essayant de trouver les valeurs des gaussienne utiliser, les resultats sont
+	 * inscrit dans des fichiers
+	 * 
+	 * @param n
+	 */
 	private void histo1D(final int n) {
+		System.out.println("histo1D:");
+		// initialise des points selon des lois normales
 		final double position[][] = new double[n][1];
 		for (int i = 0; 2 * i < n; i++) {
 			position[2 * i][0] = m_random.nextGaussian() * 1.5 + 3;
 			position[2 * i + 1][0] = m_random.nextGaussian() * 0.2 - 2;
 		}
 
+		// initialisation des centres
 		final double centre[][] = new double[2][1];
 		centre[0][0] = -1.;
 		centre[1][0] = 1.;
 		Kmeans.epoque(position, centre, 100);
 
+		// initialise la variance
 		final double[][] variance = new double[centre.length][centre[0].length];
 		for (int i = 0; i < variance.length; i++) {
 			for (int j = 0; j < variance[i].length; j++) {
@@ -212,26 +272,33 @@ public class Engine {
 			}
 		}
 
+		// initialise roh
 		final double roh[] = new double[centre.length];
 		for (int i = 0; i < centre.length; i++) {
 			roh[i] = 1. / (double) centre.length;
 		}
 
+		// 100 epoque maximum
 		MixGauss.epoque(position, centre, variance, roh, 100);
 
+		// creation de l'histogramme
 		final double tab[] = new double[position.length];
 		for (int i = 0; i < position.length; i++) {
 			tab[i] = position[i][0];
 		}
 		final double histo[][] = histogramme(-5., 10., 100, tab);
+
+		// organisation et normalisation des donnee de l'histogramme
 		final double histoNorm[][] = new double[histo[0].length][2];
 		for (int i = 0; i < histo[0].length; i++) {
 			histoNorm[i][0] = histo[0][i];
 			histoNorm[i][1] = histo[1][i] / (double) n;
 		}
 
+		// preparation a la sauvegarde des imformation des gaussienes
 		final double gauss[][] = { { centre[0][0], variance[0][0], roh[0] }, { centre[1][0], variance[1][0], roh[1] } };
 
+		// sauvegarde
 		try {
 			final SaveFile f1 = new SaveFile("./result/", "histo1D_histo.txt");
 			final SaveFile f2 = new SaveFile("./result/", "histo1D_gauss");
@@ -246,16 +313,24 @@ public class Engine {
 		}
 	}
 
+	/**
+	 * Implementation de l'algorithme de compression du projet
+	 * 
+	 * @param k nombre de centres utilisé
+	 * @throws IOException
+	 */
 	private void compress(final int k) throws IOException {
+		System.out.println("compress:");
+		// initialisation des centres
 		final double centre[][] = new double[k][3];
 		for (int i = 0; i < k; i++) {
 			centre[i][0] = m_random.nextDouble();
 			centre[i][1] = m_random.nextDouble();
 			centre[i][2] = m_random.nextDouble();
 		}
-
 		Kmeans.epoque(m_positionIm, centre, 100);
 
+		// initialisation des variances
 		final double[][] variance = new double[centre.length][centre[0].length];
 		for (int i = 0; i < variance.length; i++) {
 			for (int j = 0; j < variance[i].length; j++) {
@@ -263,27 +338,32 @@ public class Engine {
 			}
 		}
 
+		// initialisation de roh
 		final double roh[] = new double[centre.length];
 		for (int i = 0; i < centre.length; i++) {
 			roh[i] = 1. / (double) centre.length;
 		}
 
+		// 100 epoque max
 		final double[][] assignement = MixGauss.epoque(m_positionIm, centre, variance, roh, 100);
 
+		// creation d'un tableau contennant le centre auquels est associée chaque pixel
 		final int index[] = new int[m_positionIm.length];
 		for (int i = 0; i < m_positionIm.length; i++) {
 			index[i] = indexOfMax(assignement[i]);
 		}
 
+		// nouvelle image ou chaque pixel est remplace par la couleur du centre
 		final Color[] out = new Color[m_positionIm.length];
-
 		for (int i = 0; i < assignement.length; i++) {
 			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
 					(int) (centre[index[i]][2] * 255.));
 		}
 
+		// sauvegarde de l'image
 		LoadSavePNG.save(out, "./result/", "compress_" + k + ".png", m_image.getWidth(), m_image.getHeight());
 
+		// compte le nombre dse point assigner a chaque centre
 		final int count[] = new int[centre.length];
 		for (int i = 0; i < count.length; i++) {
 			count[i] = 0;
@@ -292,10 +372,12 @@ public class Engine {
 			count[index[i]]++;
 		}
 
+		// sauvegarde les valeurs des centres et le nombre de point assigner
 		final SaveFile result = new SaveFile("./result/", "compress_" + k + ".csv");
 		result.saveAssignement(centre, count);
 		result.close();
 
+		// sauvegarde une image avec un pixel par centres
 		final Color[] colors = new Color[centre.length];
 		for (int i = 0; i < centre.length; i++) {
 			colors[i] = new Color((int) (centre[i][0] * 255.), (int) (centre[i][1] * 255.),
@@ -304,6 +386,10 @@ public class Engine {
 		LoadSavePNG.save(colors, "./result/", "compress_colors_" + k + ".png", centre.length, 1);
 	}
 
+	/**
+	 * @param tab un tableau de valeur
+	 * @return l'index de la plus grande valeur
+	 */
 	private int indexOfMax(final double tab[]) {
 		int result = 0;
 		for (int i = 1; i < tab.length; i++) {
