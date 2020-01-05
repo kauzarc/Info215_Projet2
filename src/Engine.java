@@ -7,20 +7,33 @@ import java.util.Random;
 public class Engine {
 
 	private final LoadSavePNG m_image;
-	private final double m_position[][];
+	private final double m_positionIm[][];
+
+	private final File m_file;
+	private final double m_positionFile[][];
 
 	private final Random m_random;
 
 	public Engine() throws IOException {
 		m_image = new LoadSavePNG("./", "mms.png");
+		m_file = new File("./", "gmm_data.d");
 
 		final Color colorMap[] = m_image.getImage();
-		m_position = new double[colorMap.length][3];
+		m_positionIm = new double[colorMap.length][3];
 
 		for (int i = 0; i < colorMap.length; i++) {
-			m_position[i][0] = (double) colorMap[i].getRed() / 255.0;
-			m_position[i][1] = (double) colorMap[i].getGreen() / 255.0;
-			m_position[i][2] = (double) colorMap[i].getBlue() / 255.0;
+			m_positionIm[i][0] = (double) colorMap[i].getRed() / 255.0;
+			m_positionIm[i][1] = (double) colorMap[i].getGreen() / 255.0;
+			m_positionIm[i][2] = (double) colorMap[i].getBlue() / 255.0;
+		}
+
+		final String file[] = m_file.read();
+		m_positionFile = new double[file.length][2];
+
+		for (int i = 0; i < file.length; i++) {
+			final String vStr[] = file[i].split(" ");
+			m_positionFile[i][0] = Double.valueOf(vStr[0]);
+			m_positionFile[i][1] = Double.valueOf(vStr[1]);
 		}
 
 		m_random = new Random(123456789);
@@ -31,7 +44,9 @@ public class Engine {
 
 		// kScoreImage();
 
-		histo1D(1000);
+		// histo1D(1000);
+
+		kScoreFile();
 
 		// compress(5);
 		// compress(10);
@@ -60,7 +75,8 @@ public class Engine {
 		final Color c = m_image.getPixel(0, 0);
 		System.out.println("RGB = " + c.getRed() + " " + c.getGreen() + " " + c.getBlue());
 
-		System.out.println("RGB normalisé= " + m_position[0][0] + " " + m_position[0][1] + " " + m_position[0][2]);
+		System.out
+				.println("RGB normalisé= " + m_positionIm[0][0] + " " + m_positionIm[0][1] + " " + m_positionIm[0][2]);
 
 		final Color[] tabColor = m_image.getImage();
 
@@ -82,7 +98,6 @@ public class Engine {
 		for (int k = mink; k <= maxk; k++) {
 			System.out.println("-k=" + k);
 			score[k - mink] = Double.MIN_VALUE;
-			;
 
 			for (int it = 0; it < nit; it++) {
 
@@ -93,7 +108,7 @@ public class Engine {
 					centre[i][2] = m_random.nextDouble();
 				}
 
-				Kmeans.epoque(m_position, centre, 100);
+				Kmeans.epoque(m_positionIm, centre, 100);
 
 				final double[][] variance = new double[centre.length][centre[0].length];
 				for (int i = 0; i < variance.length; i++) {
@@ -107,9 +122,9 @@ public class Engine {
 					roh[i] = 1. / (double) centre.length;
 				}
 
-				MixGauss.epoque(m_position, centre, variance, roh, 100);
+				MixGauss.epoque(m_positionIm, centre, variance, roh, 100);
 
-				final double s = MixGauss.score(m_position, centre, variance, roh);
+				final double s = MixGauss.score(m_positionIm, centre, variance, roh);
 				System.out.println(s);
 				if (s > score[k - mink]) {
 					score[k - mink] = s;
@@ -126,8 +141,60 @@ public class Engine {
 		}
 	}
 
+	private void kScoreFile() {
+		System.out.println("kScoreFile:");
+		final int mink = 2;
+		final int maxk = 20;
+		final int nit = 10;
+		final double score[] = new double[maxk - mink + 1];
+
+		for (int k = mink; k <= maxk; k++) {
+			System.out.println("-k=" + k);
+			score[k - mink] = Double.MIN_VALUE;
+
+			for (int it = 0; it < nit; it++) {
+
+				final double centre[][] = new double[k][2];
+				for (int i = 0; i < k; i++) {
+					centre[i][0] = m_random.nextDouble();
+					centre[i][1] = m_random.nextDouble();
+				}
+
+				Kmeans.epoque(m_positionFile, centre, 100);
+
+				final double[][] variance = new double[centre.length][centre[0].length];
+				for (int i = 0; i < variance.length; i++) {
+					for (int j = 0; j < variance[i].length; j++) {
+						variance[i][j] = m_random.nextDouble() / 2.;
+					}
+				}
+
+				final double roh[] = new double[centre.length];
+				for (int i = 0; i < centre.length; i++) {
+					roh[i] = 1. / (double) centre.length;
+				}
+
+				MixGauss.epoque(m_positionFile, centre, variance, roh, 100);
+
+				final double s = MixGauss.score(m_positionFile, centre, variance, roh);
+				System.out.println(s);
+				if (s > score[k - mink]) {
+					score[k - mink] = s;
+				}
+			}
+		}
+
+		try {
+			final SaveFile file = new SaveFile("./result/", "kScoreFile.txt");
+			file.saveDouble(score);
+			file.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void histo1D(final int n) {
-		double position[][] = new double[n][1];
+		final double position[][] = new double[n][1];
 		for (int i = 0; 2 * i < n; i++) {
 			position[2 * i][0] = m_random.nextGaussian() * 1.5 + 3;
 			position[2 * i + 1][0] = m_random.nextGaussian() * 0.2 - 2;
@@ -152,22 +219,22 @@ public class Engine {
 
 		MixGauss.epoque(position, centre, variance, roh, 100);
 
-		double tab[] = new double[position.length];
+		final double tab[] = new double[position.length];
 		for (int i = 0; i < position.length; i++) {
 			tab[i] = position[i][0];
 		}
-		double histo[][] = histogramme(-5., 10., 100, tab);
-		double histoNorm[][] = new double[histo[0].length][2];
+		final double histo[][] = histogramme(-5., 10., 100, tab);
+		final double histoNorm[][] = new double[histo[0].length][2];
 		for (int i = 0; i < histo[0].length; i++) {
 			histoNorm[i][0] = histo[0][i];
 			histoNorm[i][1] = histo[1][i] / (double) n;
 		}
 
-		double gauss[][] = { { centre[0][0], variance[0][0], roh[0] }, { centre[1][0], variance[1][0], roh[1] } };
+		final double gauss[][] = { { centre[0][0], variance[0][0], roh[0] }, { centre[1][0], variance[1][0], roh[1] } };
 
 		try {
-			SaveFile f1 = new SaveFile("./result/", "histo1D_histo.txt");
-			SaveFile f2 = new SaveFile("./result/", "histo1D_gauss");
+			final SaveFile f1 = new SaveFile("./result/", "histo1D_histo.txt");
+			final SaveFile f2 = new SaveFile("./result/", "histo1D_gauss");
 
 			f1.saveMatrix(histoNorm);
 			f2.saveMatrix(gauss);
@@ -187,7 +254,7 @@ public class Engine {
 			centre[i][2] = m_random.nextDouble();
 		}
 
-		Kmeans.epoque(m_position, centre, 100);
+		Kmeans.epoque(m_positionIm, centre, 100);
 
 		final double[][] variance = new double[centre.length][centre[0].length];
 		for (int i = 0; i < variance.length; i++) {
@@ -201,14 +268,14 @@ public class Engine {
 			roh[i] = 1. / (double) centre.length;
 		}
 
-		final double[][] assignement = MixGauss.epoque(m_position, centre, variance, roh, 100);
+		final double[][] assignement = MixGauss.epoque(m_positionIm, centre, variance, roh, 100);
 
-		final int index[] = new int[m_position.length];
-		for (int i = 0; i < m_position.length; i++) {
+		final int index[] = new int[m_positionIm.length];
+		for (int i = 0; i < m_positionIm.length; i++) {
 			index[i] = indexOfMax(assignement[i]);
 		}
 
-		final Color[] out = new Color[m_position.length];
+		final Color[] out = new Color[m_positionIm.length];
 
 		for (int i = 0; i < assignement.length; i++) {
 			out[i] = new Color((int) (centre[index[i]][0] * 255.), (int) (centre[index[i]][1] * 255.),
